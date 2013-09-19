@@ -10,6 +10,12 @@ instance Num (Polynomial) where
 	Polynomial (a:as) + Polynomial (b:bs) =
 		let Polynomial h = Polynomial as + Polynomial bs in Polynomial ((a+b):h)
 
+	Polynomial [] * Polynomial [] = Polynomial []
+	Polynomial [] * Polynomial a  = Polynomial []
+	Polynomial a  * Polynomial [] = Polynomial []
+	Polynomial (a:as) * Polynomial b =
+		(Polynomial [a * eb | eb <- b]) + (Polynomial as * Polynomial (0:b)) 
+
 instance Show Polynomial where
 	show (Polynomial []) = "0"
 	show (Polynomial (p:ps)) = 
