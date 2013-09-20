@@ -12,6 +12,11 @@ testMultiplyByEmpty = TestCase $ assertEqual "Multiplying by an empty polynomial
 testMultiply1 = TestCase $ assertEqual "Multiplying two Polynomials" (Polynomial [1, 3, 3, 1]) (Polynomial [1, 2, 1] * Polynomial [1, 1])  
 multiplicationTests = TestList [testMultiply1, testMultiplyEmpty, testMultiplyByEmpty]
 
-tests = TestList [additionTests, multiplicationTests]
+testDerivativeZero = TestCase $ assertEqual "The derivative of zero is zero" (Polynomial []) (derivative $ Polynomial [])
+testDerivativeConstant = TestCase $ assertEqual "The derivative of a constant is zero" (Polynomial []) (derivative $ Polynomial [3])
+testDerivativeNonConstant = TestCase $ assertEqual "The derivative of x^2 is 2x" (Polynomial [0, 2]) (derivative $ Polynomial [0,0,1])
+derivativeTests = TestList [testDerivativeZero]
+
+tests = TestList [additionTests, multiplicationTests, derivativeTests]
 
 main = runTestTT tests
