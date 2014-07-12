@@ -1,34 +1,27 @@
 module Polynomial where
 
-data Polynomial = Polynomial [Int]
-	deriving (Eq)
+data Monomial = Monomial Int Int
+    deriving (Eq)
+
+instance Show Monomial where
+    show (Monomial a 0) = show a
+    show (Monomial a b) = show a ++ "x^" ++ show b
+
+data Polynomial = Polynomial [Monomial]
+    deriving (Eq)
 
 instance Num (Polynomial) where
-	Polynomial [] + Polynomial [] = Polynomial []
-	Polynomial [] + Polynomial a = Polynomial a
-	Polynomial a + Polynomial [] = Polynomial a
-	Polynomial (a:as) + Polynomial (b:bs) =
-		let Polynomial h = Polynomial as + Polynomial bs in Polynomial ((a+b):h)
-
-	Polynomial [] * Polynomial [] = Polynomial []
-	Polynomial [] * Polynomial a  = Polynomial []
-	Polynomial a  * Polynomial [] = Polynomial []
-	Polynomial (a:as) * Polynomial b =
-		(Polynomial [a * eb | eb <- b]) + (Polynomial as * Polynomial (0:b)) 
+    Polynomial a + Polynomial b = Polynomial (a ++ b)
 
 instance Show Polynomial where
-	show (Polynomial []) = "0"
-	show (Polynomial (p:ps)) = 
-		let
-			makePolyStr(_, []) = ""
-			makePolyStr(n, 0:ls) = makePolyStr(n+1, ls)
-			makePolyStr(n, l:ls) = " + " ++ (show l) ++ "x**" ++ (show n) ++ makePolyStr(n+1, ls)
-		in (show p) ++ makePolyStr(1, ps)
+    show (Polynomial []) = "0"
+    show (Polynomial [a]) = show a
+    show (Polynomial (p:ps)) = show p ++ "+" ++ show (Polynomial ps)
+
+mderivative :: Monomial -> Monomial
+mderivative (Monomial a 0) = Monomial 0 0
+mderivative (Monomial a b) = Monomial (a*b) (b-1)
 
 derivative :: Polynomial -> Polynomial
 derivative (Polynomial []) = Polynomial []
-derivative (Polynomial a) =
-	let h = diff 0 a in Polynomial h where
-		diff :: Int -> [Int] -> [Int]
-		diff _ [] = []
-		diff n (l:ls) = (n * l):(diff (n+1) ls)    
+derivative (Polynomial (l:ls)) = (Polynomial [mderivative l]) + (derivative (Polynomial ls))
