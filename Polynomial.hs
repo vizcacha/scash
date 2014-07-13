@@ -25,3 +25,18 @@ mderivative (Monomial a b) = Monomial (a*b) (b-1)
 derivative :: Polynomial -> Polynomial
 derivative (Polynomial []) = Polynomial []
 derivative (Polynomial (l:ls)) = (Polynomial [mderivative l]) + (derivative (Polynomial ls))
+
+simplify :: Polynomial -> Polynomial
+simplify (Polynomial []) = Polynomial []
+simplify (Polynomial ((Monomial a n):ls)) = 
+    let (m, p) = getsimplifiedcoeff (Polynomial ((Monomial a n):ls)) n in
+        Polynomial [m] + simplify p  
+
+getsimplifiedcoeff :: Polynomial -> Int -> (Monomial, Polynomial)
+getsimplifiedcoeff p n = getsimplifiedcoeffrec p n (Monomial 0 n) (Polynomial [])
+
+getsimplifiedcoeffrec :: Polynomial -> Int -> Monomial -> Polynomial -> (Monomial, Polynomial)
+getsimplifiedcoeffrec (Polynomial []) _ m p = (m, p)
+getsimplifiedcoeffrec (Polynomial ((Monomial a k):ls)) n (Monomial b l) p = 
+    if k == n then getsimplifiedcoeffrec (Polynomial ls) n (Monomial (b+a) l) p
+    else getsimplifiedcoeffrec (Polynomial ls) n (Monomial b l) (p + (Polynomial [Monomial a k]))
