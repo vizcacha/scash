@@ -3,6 +3,9 @@ module Polynomial where
 data Monomial = Monomial Int Int
     deriving (Eq)
 
+instance Num Monomial where
+    (Monomial a b) * (Monomial c d) = Monomial (a*c) (b+d)
+
 instance Show Monomial where
     show (Monomial a 0) = show a
     show (Monomial a b) = show a ++ "x^" ++ show b
@@ -10,13 +13,20 @@ instance Show Monomial where
 data Polynomial = Polynomial [Monomial]
     deriving (Eq)
 
-instance Num (Polynomial) where
-    Polynomial a + Polynomial b = Polynomial (a ++ b)
+instance Num Polynomial where
+    Polynomial a + Polynomial b = (Polynomial (a ++ b))
+
+    Polynomial [] * Polynomial _ = Polynomial []
+    Polynomial _ * Polynomial [] = Polynomial []
+    (Polynomial (l:ls)) * (Polynomial b) = (mult l (Polynomial b)) + ((Polynomial ls) * (Polynomial b))
 
 instance Show Polynomial where
     show (Polynomial []) = "0"
     show (Polynomial [a]) = show a
     show (Polynomial (p:ps)) = show p ++ "+" ++ show (Polynomial ps)
+
+mult :: Monomial -> Polynomial -> Polynomial
+mult m (Polynomial p) = Polynomial (map (*m) p)  
 
 mderivative :: Monomial -> Monomial
 mderivative (Monomial a 0) = Monomial 0 0
@@ -30,7 +40,7 @@ simplify :: Polynomial -> Polynomial
 simplify (Polynomial []) = Polynomial []
 simplify (Polynomial ((Monomial a n):ls)) = 
     let (m, p) = getsimplifiedcoeff (Polynomial ((Monomial a n):ls)) n in
-        Polynomial [m] + simplify p  
+        Polynomial [m] + simplify p
 
 getsimplifiedcoeff :: Polynomial -> Int -> (Monomial, Polynomial)
 getsimplifiedcoeff p n = getsimplifiedcoeffrec p n (Monomial 0 n) (Polynomial [])
