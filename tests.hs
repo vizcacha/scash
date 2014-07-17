@@ -1,4 +1,6 @@
-module Polynomial_Test where
+module Main (
+    main
+) where
 
 import Polynomial
 import Test.HUnit
